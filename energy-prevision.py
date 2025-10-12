@@ -375,6 +375,19 @@ plt.ylabel("kW")
 plt.grid(alpha=0.3)
 plt.show()
 
+# Salvar previsões em CSV
+out_dir = "relatorios"
+os.makedirs(out_dir, exist_ok=True)
+df_pred = pd.DataFrame({
+    "datetime": time_index.values,
+    "real_kW": y_test_inv,
+    "previsto_kW": y_pred_inv,
+    "residuo_kW": res
+})
+csv_path = os.path.join(out_dir, "previsoes_energia.csv")
+df_pred.to_csv(csv_path, index=False)
+print(f"Previsões salvas em CSV: {csv_path}")
+
 # RMSE rolante em janela de 24h
 window = 24
 roll_rmse = np.sqrt(pd.Series(res).rolling(window).apply(lambda x: np.mean(x**2), raw=True))
