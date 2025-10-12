@@ -6,7 +6,11 @@ import joblib
 # --------------------------
 # 1. Carregar modelo e scaler
 # --------------------------
-model = load_model("gru_energy_model.h5")
+try:
+    model = load_model("gru_energy_model.keras")
+except Exception:
+    # legacy HDF5 fallback: load without compile to avoid Keras 3 deserialization issues
+    model = load_model("gru_energy_model.h5", compile=False)
 scaler = joblib.load("scaler_energy.pkl")
 
 # --------------------------
