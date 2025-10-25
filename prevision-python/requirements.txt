@@ -1,0 +1,14 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.0
+pydantic==2.8.2
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+tensorflow==2.15.0
+joblib==1.3.2
+holidays==0.46
+matplotlib==3.8.4
+seaborn==0.13.2
+
+
+# Você pode ver que tenho duas aplications,  que era para ser um backend, e o  que era para ser um fronend... porém eu não tenho um postgress no meio para armazenar as previsões e os dados de  e , além de gravar tbm o resultado das previsões para reduzir a necessidade de chamar o modelo toda hora ... quero ter um botão no front que seja clicavel e o modelo rode, se não o dash só vai pegar dados do banco postgress, quero usar o prisma studio para fazer o controle das tabelas, então voce vai precisar implementra uma seed que faça sentido no, ou seja o front vai ter um back end tbm que chama o a api python que vc vai desenvolver dentro do 
