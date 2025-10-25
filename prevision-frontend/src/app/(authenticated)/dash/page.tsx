@@ -1,6 +1,13 @@
 "use client";
 
-import { Zap, TrendingDown, DollarSign, Activity } from "lucide-react";
+import { useState } from "react";
+import {
+  Zap,
+  TrendingDown,
+  DollarSign,
+  Activity,
+  PlayCircle,
+} from "lucide-react";
 import {
   AlertCard,
   ComparisonCard,
@@ -9,6 +16,7 @@ import {
   Sidebar,
   EconomyTips,
 } from "src/components";
+import Button from "src/components/ui/Button";
 import {
   PageWrap,
   Main,
@@ -22,6 +30,30 @@ import {
 } from "./styles";
 
 const Index = () => {
+  const [running, setRunning] = useState(false);
+  const [lastCount, setLastCount] = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  async function handleRun() {
+    setRunning(true);
+    setErrorMsg(null);
+    setLastCount(null);
+    try {
+      const res = await fetch("/api/predict/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lookback: 24 * 7, steps: 24 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Falha ao rodar previsão");
+      setLastCount(Number(data?.count ?? 0));
+    } catch (e: any) {
+      setErrorMsg(String(e?.message || e));
+    } finally {
+      setRunning(false);
+    }
+  }
+
   return (
     <PageWrap>
       <Sidebar />
@@ -30,10 +62,38 @@ const Index = () => {
         <Container>
           {/* Header */}
           <HeaderBlock>
-            <Title>Bem-vindo ao EnergyFlow</Title>
-            <Subtitle>
-              Monitore e preveja seu consumo energético de forma inteligente
-            </Subtitle>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <div>
+                <Title>Bem-vindo ao EnergyFlow</Title>
+                <Subtitle>
+                  Monitore e preveja seu consumo energético de forma inteligente
+                </Subtitle>
+              </div>
+              <Button onClick={handleRun} disabled={running} size="lg">
+                <PlayCircle />{" "}
+                {running ? "Rodando previsão..." : "Rodar previsão"}
+              </Button>
+            </div>
+            {lastCount != null && (
+              <p
+                style={{ marginTop: 8, color: "hsl(var(--muted-foreground))" }}
+              >
+                Previsões geradas: {lastCount}
+              </p>
+            )}
+            {errorMsg && (
+              <p style={{ marginTop: 8, color: "hsl(var(--destructive))" }}>
+                Erro ao rodar previsão: {errorMsg}
+              </p>
+            )}
           </HeaderBlock>
 
           {/* Metrics Grid */}

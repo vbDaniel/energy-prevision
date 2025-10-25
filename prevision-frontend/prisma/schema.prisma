@@ -1,0 +1,66 @@
+// Prisma schema for Energy Prevision
+// Datasource and generator
+ datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+ }
+
+ generator client {
+  provider = "prisma-client-js"
+ }
+
+ model TemperatureReading {
+  id         Int       @id @default(autoincrement())
+  timestamp  DateTime  @db.Timestamp(6)
+  temp       Float
+  location   String?   @default("Sceaux")
+  createdAt  DateTime  @default(now())
+
+  @@index([timestamp])
+  @@unique([timestamp, location])
+ }
+
+ model PowerReading {
+  id                   Int      @id @default(autoincrement())
+  timestamp            DateTime @db.Timestamp(6)
+  globalActivePower    Float
+  globalReactivePower  Float?
+  voltage              Float?
+  globalIntensity      Float?
+  subMetering1         Float?
+  subMetering2         Float?
+  subMetering3         Float?
+  createdAt            DateTime @default(now())
+
+  @@index([timestamp])
+  @@unique([timestamp])
+ }
+
+ model Prediction {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  lookback     Int
+  inputStart   DateTime
+  inputEnd     DateTime
+  modelName    String?   @default("gru_energy_model_best")
+  modelPath    String?
+  status       String    @default("completed")
+  count        Int
+
+  points       PredictionPoint[]
+ }
+
+ model PredictionPoint {
+  id            Int        @id @default(autoincrement())
+  predictionId  Int
+  timestamp     DateTime   @db.Timestamp(6)
+  realKw        Float?
+  previstoKw    Float
+  residuoKw     Float?
+
+  prediction    Prediction @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+
+  @@index([predictionId])
+  @@index([timestamp])
+  @@unique([predictionId, timestamp])
+ }
